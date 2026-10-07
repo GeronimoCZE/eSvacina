@@ -39,3 +39,14 @@ export const DIFFICULTY = en
  * Pass English forms as a 5th argument [one, other] to get English output in English mode.
  */
 export const plural = (n, one, few, many, enForms) => (enForms ? pluralize(n, [one, few, many], enForms) : pluralize(n, [one, few, many], [one, many]));
+
+/** Recipe and blog topic tags are stored in Czech; show English labels on the English site. */
+const TOPICS_EN = {
+  'snídaně': 'breakfast', rychlovka: 'quick', vegan: 'vegan', 'bez-lepku': 'gluten-free', dezert: 'dessert', 'oběd': 'lunch',
+  'večeře': 'dinner', keto: 'keto', raw: 'raw', 'nápoje': 'drinks', svačina: 'snack', svačiny: 'snacks', 'pečení': 'baking',
+  'výživa': 'nutrition', protein: 'protein', tipy: 'tips', superpotraviny: 'superfoods', 'nákup': 'shopping', 'high-protein': 'high-protein',
+};
+export const topicLabel = (t) => (en ? TOPICS_EN[t] || t : t);
+
+/** "−14 %" in Czech, "−14%" in English. */
+export const percent = (n) => (en ? `${n}%` : `${n} %`);

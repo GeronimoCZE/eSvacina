@@ -9,7 +9,7 @@ import { ProductGrid } from '../components/ProductCard.jsx';
 import { Breadcrumbs, ErrorBox, QuantityInput, Spinner } from '../components/Misc.jsx';
 import { api, assetUrl } from '../lib/api.js';
 import { useFetch } from '../lib/useFetch.js';
-import { DIFFICULTY, formatDate, plural, TAGS, tagLabel } from '../lib/format.js';
+import { DIFFICULTY, formatDate, plural, TAGS, tagLabel, percent } from '../lib/format.js';
 import { tx } from '../lib/i18n.js';
 import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -299,7 +299,7 @@ export default function Product() {
               {product.salePrice && (
                 <>
                   <s>{money(product.price)}</s>
-                  <span className="badge badge-sale">−{product.discountPercent} %</span>
+                  <span className="badge badge-sale">−{percent(product.discountPercent)}</span>
                 </>
               )}
             </div>

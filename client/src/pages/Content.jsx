@@ -8,7 +8,7 @@ import { Breadcrumbs, Empty, ErrorBox, Pagination, Spinner } from '../components
 import { RecipeCard, PostCard } from './Home.jsx';
 import { useFetch } from '../lib/useFetch.js';
 import { qs } from '../lib/api.js';
-import { DIFFICULTY, formatDate, plural } from '../lib/format.js';
+import { DIFFICULTY, formatDate, plural, topicLabel } from '../lib/format.js';
 import { tx } from '../lib/i18n.js';
 import { useCart } from '../context/CartContext.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
@@ -29,7 +29,7 @@ export function Recipes() {
       <div className="chips center-chips">
         <button className={`chip chip-btn ${!p.tag && !p.difficulty ? 'active' : ''}`} onClick={() => setParams({})}>{tx('Vše', 'All')}</button>
         {data?.tags.map((t) => (
-          <button key={t} className={`chip chip-btn ${p.tag === t ? 'active' : ''}`} onClick={() => setParams({ tag: t })}>{t}</button>
+          <button key={t} className={`chip chip-btn ${p.tag === t ? 'active' : ''}`} onClick={() => setParams({ tag: t })}>{topicLabel(t)}</button>
         ))}
       </div>
       {loading && !data ? <Spinner /> : data.recipes.length ? (
@@ -62,7 +62,7 @@ export function Recipe() {
       <div className="recipe-hero">
         <Reveal><ProductVisual product={{ ...recipe, images: recipe.image ? [recipe.image] : [] }} color="#f97316" size="xl" /></Reveal>
         <Reveal delay={80}>
-          <div className="chips">{recipe.tags.map((t) => <span key={t} className="chip">{t}</span>)}</div>
+          <div className="chips">{recipe.tags.map((t) => <span key={t} className="chip">{topicLabel(t)}</span>)}</div>
           <h1>{recipe.title}</h1>
           <p className="pdp-lead">{recipe.excerpt}</p>
           <div className="recipe-facts">
@@ -141,7 +141,7 @@ export function Post() {
     <div className="container page narrow">
       <Breadcrumbs items={[{ label: 'Blog', to: '/blog' }, { label: post.title }]} />
       <article className="article">
-        <div className="chips">{post.tags.map((t) => <Link key={t} to={`/blog?tag=${t}`} className="chip">#{t}</Link>)}</div>
+        <div className="chips">{post.tags.map((t) => <Link key={t} to={`/blog?tag=${t}`} className="chip">#{topicLabel(t)}</Link>)}</div>
         <h1>{post.title}</h1>
         <p className="muted">{post.author && `${post.author.firstName} ${post.author.lastName} · `}{formatDate(post.publishedAt)}</p>
         <ProductVisual product={{ ...post, name: post.title, images: post.coverImage ? [post.coverImage] : [] }} color="#0ea5e9" size="wide" className="article-cover" />

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import Icon from './Icon.jsx';
 import ProductVisual from './ProductVisual.jsx';
 import Stars from './Stars.jsx';
-import { tagLabel } from '../lib/format.js';
+import { tagLabel, percent } from '../lib/format.js';
 import { tx } from '../lib/i18n.js';
 import { useLocale } from '../context/LocaleContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
@@ -26,7 +26,7 @@ export default function ProductCard({ product }) {
       <Link to={`/produkt/${product.slug}`} className="product-card-media">
         <ProductVisual product={product} />
         <div className="badges">
-          {product.discountPercent > 0 && <span className="badge badge-sale">−{product.discountPercent} %</span>}
+          {product.discountPercent > 0 && <span className="badge badge-sale">−{percent(product.discountPercent)}</span>}
           {isNew && <span className="badge badge-new">{tx('Novinka', 'New')}</span>}
           {product.stock === 0 && <span className="badge badge-muted">{tx('Vyprodáno', 'Sold out')}</span>}
         </div>
