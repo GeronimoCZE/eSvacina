@@ -1,0 +1,322 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum ReactionType {
+  LIKE
+  DISLIKE
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  phone        String?
+  role         Role      @default(USER)
+  blocked      Boolean   @default(false)
+  newsletter   Boolean   @default(false)
+  // Default shipping address
+  street       String?
+  city         String?
+  zip          String?
+  country      String?   @default("Česká republika")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  orders     Order[]
+  reviews    Review[]
+  questions  Question[]
+  answers    Answer[]
+  favorites  Favorite[]
+  reactions  ProductReaction[]
+  blogPosts  BlogPost[]
+}
+
+model Category {
+  id          Int        @id @default(autoincrement())
+  name        String
+  slug        String     @unique
+  description String?
+  icon        String?    // emoji shown in menus
+  color       String?    // accent colour for tiles
+  image       String?
+  sortOrder   Int        @default(0)
+  translations Json?    // { en: { field: "English text" } }
+  active      Boolean    @default(true)
+  parentId    Int?
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Category[] @relation("CategoryTree")
+  products    Product[]
+  createdAt   DateTime   @default(now())
+}
+
+model Product {
+  id            Int       @id @default(autoincrement())
+  name          String
+  slug          String    @unique
+  brand         String?
+  shortDescription String?
+  description   String    @default("")
+  price         Decimal   @db.Decimal(10, 2)
+  salePrice     Decimal?  @db.Decimal(10, 2)
+  stock         Int       @default(0)
+  sku           String?   @unique
+  weight        String?   // e.g. "500 g"
+  images        String[]
+  emoji         String?   // visual fallback when no photo is uploaded
+  tags          String[]  // vegan, bez-lepku, bio, keto, ...
+  nutrition     Json?     // per 100 g: energy, fat, carbs, sugar, protein, fiber, salt
+  ingredients   String?
+  allergens     String?
+  translations Json?    // { en: { field: "English text" } }
+  isNew         Boolean   @default(false)
+  isFeatured    Boolean   @default(false)
+  active        Boolean   @default(true)
+  views         Int       @default(0)
+  categoryId    Int
+  category      Category  @relation(fields: [categoryId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  reviews       Review[]
+  questions     Question[]
+  favorites     Favorite[]
+  reactions     ProductReaction[]
+  orderItems    OrderItem[]
+  recipeLinks   RecipeIngredient[]
+
+  @@index([categoryId])
+  @@index([active, createdAt])
+}
+
+model ProductReaction {
+  id        Int          @id @default(autoincrement())
+  type      ReactionType
+  userId    Int
+  productId Int
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, productId])
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int
+  title     String?
+  comment   String
+  approved  Boolean  @default(true)
+  userId    Int
+  productId Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model Question {
+  id        Int      @id @default(autoincrement())
+  body      String
+  approved  Boolean  @default(true)
+  userId    Int
+  productId Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  answers   Answer[]
+  createdAt DateTime @default(now())
+}
+
+model Answer {
+  id         Int      @id @default(autoincrement())
+  body       String
+  userId     Int
+  questionId Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
+model Recipe {
+  id           Int                @id @default(autoincrement())
+  title        String
+  slug         String             @unique
+  excerpt      String?
+  instructions String             // markdown
+  image        String?
+  emoji        String?
+  prepMinutes  Int                @default(15)
+  servings     Int                @default(2)
+  difficulty   Difficulty         @default(EASY)
+  tags         String[]
+  published    Boolean            @default(true)
+  translations Json?    // { en: { field: "English text" } }
+  ingredients  RecipeIngredient[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
+
+model RecipeIngredient {
+  id        Int      @id @default(autoincrement())
+  name      String
+  amount    String?
+  sortOrder Int      @default(0)
+  translations Json?
+  recipeId  Int
+  productId Int?
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+}
+
+model BlogPost {
+  id          Int       @id @default(autoincrement())
+  title       String
+  slug        String    @unique
+  excerpt     String?
+  content     String    // markdown
+  coverImage  String?
+  emoji       String?
+  tags        String[]
+  published   Boolean   @default(false)
+  translations Json?    // { en: { field: "English text" } }
+  publishedAt DateTime?
+  authorId    Int?
+  author      User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Order {
+  id              Int         @id @default(autoincrement())
+  number          String      @unique
+  status          OrderStatus @default(PENDING)
+  userId          Int?
+  user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  email           String
+  firstName       String
+  lastName        String
+  phone           String?
+  street          String
+  city            String
+  zip             String
+  country         String
+  note            String?
+  shippingMethod  String
+  paymentMethod   String
+  subtotal        Decimal     @db.Decimal(10, 2)
+  shippingPrice   Decimal     @db.Decimal(10, 2)
+  paymentPrice    Decimal     @db.Decimal(10, 2) @default(0)
+  discount        Decimal     @db.Decimal(10, 2) @default(0)
+  total           Decimal     @db.Decimal(10, 2)
+  couponCode      String?
+  pickupPoint     String?
+  locale          String      @default("cs")
+  currency        String      @default("CZK") // currency the customer saw and paid in
+  exchangeRate    Decimal     @db.Decimal(12, 6) @default(1) // CZK per 1 unit of currency
+  paymentType     String      @default("bank")
+  stripeSessionId String?     @unique
+  paidAt          DateTime?
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  productId Int?
+  name      String
+  price     Decimal  @db.Decimal(10, 2)
+  quantity  Int
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+}
+
+model Banner {
+  id         Int      @id @default(autoincrement())
+  title      String
+  subtitle   String?
+  ctaText    String?
+  ctaLink    String?
+  image      String?
+  emoji      String?
+  background String?  // CSS colour or gradient
+  textColor  String?
+  placement  String   @default("hero") // hero | promo
+  sortOrder  Int      @default(0)
+  active     Boolean  @default(true)
+  translations Json?    // { en: { field: "English text" } }
+  createdAt  DateTime @default(now())
+}
+
+model Page {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  title     String
+  content   String   // markdown
+  showInFooter Boolean @default(true)
+  translations Json?    // { en: { field: "English text" } }
+  updatedAt DateTime @updatedAt
+}
+
+model Coupon {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique
+  type        String    @default("percent") // percent | fixed
+  value       Decimal   @db.Decimal(10, 2)
+  minOrder    Decimal?  @db.Decimal(10, 2)
+  expiresAt   DateTime?
+  maxUses     Int?
+  used        Int       @default(0)
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+}
+
+model Setting {
+  key   String @id
+  value Json
+}
+
+model NewsletterSubscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
