@@ -56,6 +56,33 @@ To try the production setup without Docker: `cd client && npm run build`, then s
 
 `npm run db:reset` in `server/` wipes the database and re-seeds it.
 
+## Run with PM2
+
+PM2 runs the built storefront and the API as one process on port 4010, without Docker. You need Node 22, PostgreSQL (and optionally Redis) on the machine.
+
+```bash
+npm install -g pm2
+
+# one-time setup
+cd server
+cp .env.example .env          # set DATABASE_URL and a long random JWT_SECRET
+npm install
+npx prisma migrate deploy
+npm run db:seed
+cd ../client
+npm install
+npm run build
+cd ..
+
+pm2 start ecosystem.config.cjs   # http://localhost:4010
+pm2 save                         # remember the app
+pm2 startup                      # start it again after a reboot (follow the printed command)
+```
+
+Useful commands: `pm2 logs esvacina`, `pm2 restart esvacina`, `pm2 stop esvacina`. After pulling new code, run `npm install` and `npx prisma migrate deploy` in `server`, `npm run build` in `client`, then `pm2 restart esvacina`.
+
+When the shop is reachable under a real domain, set `PM2_PUBLIC_URL=https://your-domain.cz` in `server/.env` so links, the sitemap and share images use it. Over HTTPS, login cookies are marked secure automatically.
+
 ## Features
 
 **Storefront**
@@ -106,6 +133,7 @@ Public GET endpoints (home, categories, product lists and details, recipes, blog
 ## Project layout
 
 ```
+ecosystem.config.cjs        PM2 config (production, port 4010)
 server/
   prisma/schema.prisma      data model
   prisma/migrations/        SQL migrations
