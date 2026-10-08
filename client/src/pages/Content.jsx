@@ -161,7 +161,7 @@ export function Post() {
 export function Page() {
   const { slug } = useParams();
   const { data, error, loading } = useFetch(`/pages/${slug}`);
-  useEffect(() => window.scrollTo(0, 0), [slug]);
+  useEffect(() => { window.scrollTo(0, 0); }, [slug]);
   if (error) return <ErrorBox error={error} />;
   if (loading && !data) return <Spinner />;
   return (

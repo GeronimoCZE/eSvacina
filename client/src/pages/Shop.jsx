@@ -33,8 +33,8 @@ export default function Shop({ search }) {
   const [price, setPrice] = useState({ min: toShown(p.minPrice), max: toShown(p.maxPrice) });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => setPrice({ min: toShown(p.minPrice), max: toShown(p.maxPrice) }), [p.minPrice, p.maxPrice, rate]);
-  useEffect(() => window.scrollTo({ top: 0, behavior: 'smooth' }), [slug, p.page]);
+  useEffect(() => { setPrice({ min: toShown(p.minPrice), max: toShown(p.maxPrice) }); }, [p.minPrice, p.maxPrice, rate]);
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, [slug, p.page]);
 
   const update = (patch) => {
     const next = { ...p, ...patch };
