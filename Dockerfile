@@ -17,6 +17,6 @@ COPY server/prisma ./prisma
 RUN npx prisma generate
 COPY server/src ./src
 COPY --from=client /client/dist ./public
-ENV NODE_ENV=production CLIENT_DIST=/app/public PORT=4000
-EXPOSE 4000
+ENV NODE_ENV=production CLIENT_DIST=/app/public PORT=4010
+EXPOSE 4010
 CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/seed-if-empty.js && node src/index.js"]

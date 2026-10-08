@@ -14,7 +14,7 @@ Everything you need to run, configure and deploy the shop. For an overview with 
 docker compose up --build
 ```
 
-Then open **http://localhost:8080** (English: **http://localhost:8080/en**). One container serves the API and the storefront with server-rendered SEO tags. The first start runs the database migrations and seeds demo data.
+Then open **http://localhost:4010** (English: **http://localhost:4010/en**). One container serves the API and the storefront with server-rendered SEO tags. The first start runs the database migrations and seeds demo data.
 
 | Account | E‑mail | Password |
 |---|---|---|
@@ -44,15 +44,15 @@ cp .env.example .env          # adjust DATABASE_URL etc.
 npm install
 npx prisma migrate deploy
 npm run db:seed
-npm run dev                   # http://localhost:4000
+npm run dev                   # http://localhost:4010
 
 # Storefront (new terminal)
 cd client
 npm install
-npm run dev                   # http://localhost:5173 (proxies /api, /og, /sitemap.xml to :4000)
+npm run dev                   # http://localhost:5173 (proxies /api, /og, /sitemap.xml to :4010)
 ```
 
-To try the production setup without Docker: `cd client && npm run build`, then start the API with `NODE_ENV=production CLIENT_DIST=../client/dist PUBLIC_URL=http://localhost:4000 CORS_ORIGIN=http://localhost:4000 COOKIE_SECURE=false JWT_SECRET=<long secret> node src/index.js` and open http://localhost:4000.
+To try the production setup without Docker: `cd client && npm run build`, then start the API with `NODE_ENV=production CLIENT_DIST=../client/dist PUBLIC_URL=http://localhost:4010 CORS_ORIGIN=http://localhost:4010 COOKIE_SECURE=false JWT_SECRET=<long secret> node src/index.js` and open http://localhost:4010.
 
 `npm run db:reset` in `server/` wipes the database and re-seeds it.
 

@@ -18,13 +18,13 @@ services:
   app:
     build: .
     ports:
-      - "8080:4000"
+      - "4010:4010"
     environment:
       DATABASE_URL: postgresql://esvacina:esvacina@db:5432/esvacina
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET:-please-change-this-to-a-long-random-secret}
-      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8080}
-      CORS_ORIGIN: ${PUBLIC_URL:-http://localhost:8080}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:4010}
+      CORS_ORIGIN: ${PUBLIC_URL:-http://localhost:4010}
       # Plain HTTP on localhost; set to true behind HTTPS.
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@esvacina.cz}

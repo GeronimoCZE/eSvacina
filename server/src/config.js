@@ -8,7 +8,7 @@ if (isProd && (!process.env.JWT_SECRET || process.env.JWT_SECRET.startsWith('cha
 
 export const config = {
   isProd,
-  port: Number(process.env.PORT || 4000),
+  port: Number(process.env.PORT || 4010),
   jwtSecret: process.env.JWT_SECRET || 'dev-secret-do-not-use-in-production',
   corsOrigins: (process.env.CORS_ORIGIN || 'http://localhost:5173')
     .split(',')
